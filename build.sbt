@@ -2,7 +2,7 @@ name := "matrix-rain"
 
 version := "0.1"
 
-scalaVersion := "2.13.6"
+scalaVersion := "3.0.2"
 
 libraryDependencies += "org.jline" % "jline" % "3.20.0"
 
