@@ -147,9 +147,10 @@ final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConf
 
   def stop(): Unit = {
     write(Ansi.cursorVisible)
-    write(Ansi.clearScreen)
     write(Ansi.cursorHome)
     write(Ansi.useNormalBuffer)
+    write(Ansi.off)
+    write(Ansi.clearScreen)
     flush()
   }
 }
