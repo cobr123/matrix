@@ -1,21 +1,36 @@
-import java.util.{Timer, TimerTask}
+import cats.effect.{IO, IOApp, Resource}
+import com.google.common.util.concurrent.RateLimiter
+import org.jline.terminal.{Terminal, TerminalBuilder}
 
-object Main {
 
-  def main(args: Array[String]): Unit = {
-    val matrixRain = MatrixRain()
-    try {
-      matrixRain.start()
-      new Timer().scheduleAtFixedRate(new TimerTask() {
-        @Override
-        def run(): Unit = {
-          matrixRain.renderFrame()
-        }
-      }, 0, 16) // 60FPS
-      // infinite sleep
-      Thread.currentThread().join()
-    } finally {
-      matrixRain.stop()
+object Main extends IOApp.Simple {
+
+  override def run: IO[Unit] = {
+    makeTerminal().use { terminal =>
+      makeMatrixRain(terminal).use { matrixRain =>
+        for {
+          rateLimiter <- IO(RateLimiter.create(60)) // 60FPS
+          _ <- renderWithLimit(matrixRain, rateLimiter).foreverM
+        } yield ()
+      }
     }
   }
+
+  private def renderWithLimit(matrixRain: MatrixRain, rateLimiter: RateLimiter): IO[Unit] =
+    for {
+      _ <- IO(rateLimiter.acquire())
+      _ <- IO(matrixRain.renderFrame())
+    } yield ()
+
+  private def makeMatrixRain(terminal: Terminal): Resource[IO, MatrixRain] =
+    Resource.make(IO(MatrixRain(terminal).start()))(mr => IO(mr.stop()))
+
+  private def makeTerminal(): Resource[IO, Terminal] =
+    Resource.fromAutoCloseable(
+      IO(TerminalBuilder.builder()
+        .jna(true)
+        .system(true)
+        .build())
+    )
+
 }

@@ -1,19 +1,17 @@
-import org.jline.terminal.{Terminal, TerminalBuilder}
+import org.jline.terminal.Terminal
 
 import scala.collection.mutable.ArrayBuffer
 
-final case class MatrixRain(direction: String = "v", var color: String = "green", charRange: String = "ascii") {
+final case class MatrixRain(terminal: Terminal,
+                            direction: String = "v",
+                            var color: String = "green",
+                            charRange: String = "ascii") {
 
   private var transpose = direction.equals("h")
   private val maxSpeed = 20
   private val colDroplets = new ArrayBuffer[List[Droplet]]()
   // Simple string stream buffer + stdout flush at once
   private val outBuffer = new ArrayBuffer[String]()
-
-  private val terminal = TerminalBuilder.builder()
-    .jna(true)
-    .system(true)
-    .build()
 
   private def rand(start: Int, end: Int): Int = {
     (start + Math.floor(Math.random() * (end - start))).toInt
@@ -63,7 +61,7 @@ final case class MatrixRain(direction: String = "v", var color: String = "green"
   private var numCols = 0
   private var numRows = 0
 
-  def resizeDroplets(terminal: Terminal): Unit = {
+  def resizeDroplets(): Unit = {
     numCols = terminal.getWidth
     numRows = terminal.getHeight
 
@@ -136,7 +134,7 @@ final case class MatrixRain(direction: String = "v", var color: String = "green"
     outBuffer.clear()
   }
 
-  def start(): Unit = {
+  def start(): MatrixRain = {
     // clear terminal and use alt buffer
     terminal.enterRawMode()
     write(Ansi.useAltBuffer)
@@ -145,7 +143,8 @@ final case class MatrixRain(direction: String = "v", var color: String = "green"
     write(AnsiColor.fgBlack)
     write(Ansi.clearScreen)
     flush()
-    resizeDroplets(terminal)
+    resizeDroplets()
+    this
   }
 
   def stop(): Unit = {
@@ -154,6 +153,5 @@ final case class MatrixRain(direction: String = "v", var color: String = "green"
     write(Ansi.cursorHome)
     write(Ansi.useNormalBuffer)
     flush()
-    terminal.close()
   }
 }
