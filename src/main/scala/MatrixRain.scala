@@ -142,7 +142,17 @@ final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConf
     write(Ansi.clearScreen)
     flush()
     resizeDroplets()
+    terminal.handle(Terminal.Signal.WINCH, winchSignalHandler)
     this
+  }
+
+  private val winchSignalHandler = new Terminal.SignalHandler() {
+    @Override
+    def handle(signal: Terminal.Signal): Unit = {
+      if (signal == Terminal.Signal.WINCH) {
+        start()
+      }
+    }
   }
 
   def stop(): Unit = {

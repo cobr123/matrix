@@ -36,7 +36,7 @@ object Main extends IOApp {
       opt[String]('k', "char-range")
         .action((x, c) => c.copy(charRange = x))
         .validate(x =>
-          if (List("ascii", "binary", "braille", "emoji", "katakana").contains(x.toLowerCase)) success
+          if (List("ascii", "binary", "braille", "emoji", "katakana", "lil-guys").contains(x.toLowerCase)) success
           else failure("Use rain characters from char-range {ascii, binary, braille, emoji, katakana}")
         )
         .text("{ascii, binary, braille, emoji, katakana}\nUse rain characters from char-range"),
