@@ -2,12 +2,10 @@ import org.jline.terminal.Terminal
 
 import scala.collection.mutable.ArrayBuffer
 
-final case class MatrixRain(terminal: Terminal,
-                            direction: String = "v",
-                            var color: String = "green",
-                            charRange: String = "ascii") {
+final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConfig) {
 
-  private var transpose = direction.equals("h")
+  private var transpose = matrixRainConfig.direction.equals("h")
+  private var color = matrixRainConfig.color
   private val maxSpeed = 20
   private val colDroplets = new ArrayBuffer[List[Droplet]]()
   // Simple string stream buffer + stdout flush at once
@@ -54,7 +52,7 @@ final case class MatrixRain(terminal: Terminal,
       curRow = row,
       height = rand(numRows / 2, numRows),
       speed = rand(1, maxSpeed),
-      chars = generateChars(numRows, charRange),
+      chars = generateChars(numRows, matrixRainConfig.charRange),
     )
   }
 
