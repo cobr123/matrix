@@ -59,7 +59,7 @@ final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConf
   private var numCols = 0
   private var numRows = 0
 
-  def resizeDroplets(): Unit = {
+  private def resizeDroplets(): Unit = {
     numCols = terminal.getWidth
     numRows = terminal.getHeight
 
@@ -150,6 +150,8 @@ final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConf
     @Override
     def handle(signal: Terminal.Signal): Unit = {
       if (signal == Terminal.Signal.WINCH) {
+        colDroplets.clear()
+        resizeDroplets()
         start()
       }
     }
