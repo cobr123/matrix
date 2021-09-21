@@ -1,24 +1,26 @@
-import Ansi.{color, ctlEsc}
+import Ansi.color
 
-object AnsiColor {
-  def fgRgb(r: Int, g: Int, b: Int): String = s"${ctlEsc}38;2;$r;$g;${b}m"
+enum AnsiColor(num: Int) {
 
-  def bgRgb(r: Int, g: Int, b: Int): String = s"${ctlEsc}48;2;$r;$g;${b}m"
+  case fgBlack extends AnsiColor(30)
+  case fgRed extends AnsiColor(31)
+  case fgGreen extends AnsiColor(32)
+  case fgYellow extends AnsiColor(33)
+  case fgBlue extends AnsiColor(34)
+  case fgMagenta extends AnsiColor(35)
+  case fgCyan extends AnsiColor(36)
+  case fgWhite extends AnsiColor(37)
 
-  val fgBlack: String = color(30)
-  val fgRed: String = color(31)
-  val fgGreen: String = color(32)
-  val fgYellow: String = color(33)
-  val fgBlue: String = color(34)
-  val fgMagenta: String = color(35)
-  val fgCyan: String = color(36)
-  val fgWhite: String = color(37)
-  val bgBlack: String = color(40)
-  val bgRed: String = color(41)
-  val bgGreen: String = color(42)
-  val bgYellow: String = color(43)
-  val bgBlue: String = color(44)
-  val bgMagenta: String = color(45)
-  val bgCyan: String = color(46)
-  val bgWhite: String = color(47)
+  case bgBlack extends AnsiColor(40)
+  case bgRed extends AnsiColor(41)
+  case bgGreen extends AnsiColor(42)
+  case bgYellow extends AnsiColor(43)
+  case bgBlue extends AnsiColor(44)
+  case bgMagenta extends AnsiColor(45)
+  case bgCyan extends AnsiColor(46)
+  case bgWhite extends AnsiColor(47)
+
+  def getTermCode: String = {
+    color(num)
+  }
 }

@@ -97,7 +97,7 @@ final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConf
   }
 
   def renderFrame(): Unit = {
-    val ansiColor = AnsiColor.fgGreen
+    val ansiColor = AnsiColor.valueOf(s"fg${color.take(1).capitalize}${color.drop(1)}")
 
     for (droplets <- colDroplets) {
       for (droplet <- droplets) {
@@ -105,8 +105,8 @@ final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConf
         droplet.alive += 1
 
         if (droplet.alive % droplet.speed == 0) {
-          writeAt(curRow - 1, curCol, droplet.getCharOrEmpty(curRow - 1), ansiColor)
-          writeAt(curRow, curCol, droplet.getCharOrEmpty(curRow), AnsiColor.fgWhite)
+          writeAt(curRow - 1, curCol, droplet.getCharOrEmpty(curRow - 1), ansiColor.getTermCode)
+          writeAt(curRow, curCol, droplet.getCharOrEmpty(curRow), AnsiColor.fgWhite.getTermCode)
           writeAt(curRow - height, curCol, " ", "")
           droplet.curRow += 1
         }
@@ -137,8 +137,8 @@ final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConf
     terminal.enterRawMode()
     write(Ansi.useAltBuffer)
     write(Ansi.cursorInvisible)
-    write(AnsiColor.bgBlack)
-    write(AnsiColor.fgBlack)
+    write(AnsiColor.bgBlack.getTermCode)
+    write(AnsiColor.fgBlack.getTermCode)
     write(Ansi.clearScreen)
     flush()
     resizeDroplets()

@@ -16,4 +16,8 @@ object Ansi {
   val bold = s"${ctlEsc}1m"
 
   def color(c: Int): String = s"$ctlEsc$c;1m"
+
+  def fgRgb(r: Int, g: Int, b: Int): String = s"${ctlEsc}38;2;$r;$g;${b}m"
+
+  def bgRgb(r: Int, g: Int, b: Int): String = s"${ctlEsc}48;2;$r;$g;${b}m"
 }
