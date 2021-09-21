@@ -21,6 +21,6 @@ Optional arguments:
 
 ## Screenshots
 
-![Vertical Matrix](./v.gif)
+![Vertical Matrix](./screenshots/v.gif)
 
-![Horizontal Matrix](./h.gif)
+![Horizontal Matrix](./screenshots/h.gif)
