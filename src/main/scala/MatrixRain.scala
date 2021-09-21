@@ -20,7 +20,8 @@ final case class MatrixRain(direction: String = "v", var color: String = "green"
   }
 
   private def randCharString(start: Int, end: Int): String = {
-    String.valueOf(start + Math.floor(Math.random() * (end - start)).toChar)
+    val ch = (start + Math.floor(Math.random() * (end - start))).toChar
+    String.valueOf(ch)
   }
 
   private def generateChars(len: Int, charRange: String): Array[String] = {
