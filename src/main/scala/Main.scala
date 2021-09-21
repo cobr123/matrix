@@ -21,6 +21,7 @@ object Main extends IOApp {
     import builder._
     OParser.sequence(
       programName("matrix-rain"),
+      head("The famous Matrix rain effect of falling green characters as a cli command"),
       help("help").text("Show this help message and exit"),
       opt[String]('d', "direction")
         .action((x, c) => c.copy(direction = x))
