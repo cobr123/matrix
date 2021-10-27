@@ -1,7 +1,9 @@
 import cats.effect.{ExitCode, IO, IOApp, Resource}
-import com.google.common.util.concurrent.RateLimiter
 import org.jline.terminal.{Terminal, TerminalBuilder}
 import scopt.OParser
+import upperbound.Limiter
+import upperbound.syntax.rate.rateOps
+import scala.concurrent.duration._
 
 
 object Main extends IOApp {
@@ -46,18 +48,17 @@ object Main extends IOApp {
   private def runWithConfig(matrixRainConfig: MatrixRainConfig): IO[ExitCode] =
     makeTerminal().use { terminal =>
       makeMatrixRain(terminal, matrixRainConfig).use { matrixRain =>
-        for {
-          rateLimiter <- IO(RateLimiter.create(60)) // 60FPS
-          _ <- renderWithLimit(matrixRain, rateLimiter).foreverM
-        } yield ExitCode.Success
+        // 60FPS
+        Limiter.start[IO](minInterval = 60 every 1.second).use { rateLimiter =>
+          for {
+            _ <- renderWithLimit(matrixRain, rateLimiter).foreverM
+          } yield ExitCode.Success
+        }
       }
     }
 
-  private def renderWithLimit(matrixRain: MatrixRain, rateLimiter: RateLimiter): IO[Unit] =
-    for {
-      _ <- IO(rateLimiter.acquire())
-      _ <- IO(matrixRain.renderFrame())
-    } yield ()
+  private def renderWithLimit(matrixRain: MatrixRain, rateLimiter: Limiter[IO]): IO[Unit] =
+    rateLimiter.submit(IO(matrixRain.renderFrame()))
 
   private def makeMatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConfig): Resource[IO, MatrixRain] =
     Resource.make(IO(MatrixRain(terminal, matrixRainConfig).start()))(mr => IO(mr.stop()))
