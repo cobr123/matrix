@@ -8,7 +8,7 @@ sbt run
 or
 ```
 sbt assembly
-java -jar target/scala-3.0.2/matrix-rain-assembly-0.1.jar [-d {h,v}]
+java -jar target/scala-3.1.3/matrix-rain-assembly-0.2.jar [-d {h,v}]
                                                           [-c {green, red, blue, yellow, magenta, cyan, white}]
                                                           [-k {ascii, binary, braille, emoji, katakana}] 
         
