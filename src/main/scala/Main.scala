@@ -9,10 +9,13 @@ object Main extends ZIOAppDefault {
       .provideLayer(matrixRainLayer)
   }
 
-  def program: ZIO[MatrixRain, Throwable, Unit] =
+  def program: ZIO[MatrixRain, Nothing, Unit] =
     for {
       matrixRain <- ZIO.service[MatrixRain]
-      _ <- ZIO.attempt(matrixRain.renderFrame()).repeat(Schedule.spaced((1000 / 60).millis)) // 60FPS
+      // 60FPS
+      _ <- ZIO.attempt(matrixRain.renderFrame())
+        .repeat(Schedule.spaced((1000 / 60).millis))
+        .catchAll(_ => program)
     } yield ()
 
   def configAndTerminalLayer: ZLayer[Scope with ZIOAppArgs, Any, Terminal with MatrixRainConfig] = ZLayer.fromZIO(makeTerminal) ++ MatrixRainConfig.live
