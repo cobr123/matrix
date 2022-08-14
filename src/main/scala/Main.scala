@@ -16,6 +16,7 @@ object Main extends ZIOAppDefault {
       _ <- ZIO.attempt(matrixRain.renderFrame())
         .repeat(Schedule.spaced((1000 / 60).millis))
         .catchAll(_ => program)
+        .onInterrupt(ZIO.succeed(matrixRain.stop()))
     } yield ()
 
   def configAndTerminalLayer: ZLayer[Scope with ZIOAppArgs, Any, Terminal with MatrixRainConfig] = ZLayer.fromZIO(makeTerminal) ++ MatrixRainConfig.live
