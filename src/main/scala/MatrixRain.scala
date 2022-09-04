@@ -84,7 +84,7 @@ final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConf
     }
   }
 
-  private def writeAt(row: Long, col: Long, str: String, color: String): Unit = {
+  private def writeAt(row: Int, col: Int, str: String, color: String): Unit = {
     // Only output if in viewport
     if (row >= 0 && row < this.numRows && col >= 0 && col < this.numCols) {
       val pos = if (transpose) {
@@ -92,7 +92,20 @@ final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConf
       } else {
         Ansi.cursorPos(row, col)
       }
-      write(s"$pos$color$str")
+      var newStr = str
+      matrixRainConfig.mask match {
+        case None =>
+        case Some(mask) =>
+          val maskBlankChar = if (matrixRainConfig.invertMask) '#' else ' '
+          val maskHeight = mask.length
+          val maskWidth = mask.head.length
+          val maskRow = row - matrixRainConfig.offsetRow
+          val maskCol = col - matrixRainConfig.offsetCol
+          if (maskRow >= 0 && maskCol >= 0 && maskRow < maskHeight && maskCol < maskWidth && mask(maskRow)(maskCol) == maskBlankChar) {
+            newStr = " "
+          }
+      }
+      write(s"$pos$color$newStr")
     }
   }
 
