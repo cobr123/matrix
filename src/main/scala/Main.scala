@@ -7,6 +7,7 @@ object Main extends ZIOAppDefault {
   override def run = {
     program
       .provideLayer(matrixRainLayer)
+      .exitCode
   }
 
   def program: ZIO[MatrixRain, Nothing, Unit] =

@@ -1,5 +1,7 @@
 import zio._
-import scopt.OParser
+import scopt.{DefaultOEffectSetup, OEffectSetup, OParser}
+
+import java.util.concurrent.atomic.AtomicReference
 
 case class MatrixRainConfig(direction: String = "v", color: String = "green", charRange: String = "ascii")
 
@@ -10,8 +12,12 @@ object MatrixRainConfig {
   def getConfig: ZIO[ZIOAppArgs, ExitCode, MatrixRainConfig] =
     for {
       args <- ZIO.service[ZIOAppArgs]
-      conf <- OParser.parse(getParser, args.getArgs.toList, MatrixRainConfig()) match {
-        case Some(config) =>
+      terminated = new AtomicReference(false)
+      osetup = new DefaultOEffectSetup with OEffectSetup {
+        override def terminate(exitState: Either[String, Unit]): Unit = terminated.set(true)
+      }
+      conf <- OParser.parse(getParser, args.getArgs.toList, MatrixRainConfig(), osetup) match {
+        case Some(config) if !terminated.get =>
           ZIO.succeed(config)
         case _ =>
           // arguments are bad, error message will have been displayed
