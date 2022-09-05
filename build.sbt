@@ -1,6 +1,6 @@
 name := "matrix-rain"
 
-version := "0.5"
+version := "0.6"
 
 scalaVersion := "3.1.3"
 

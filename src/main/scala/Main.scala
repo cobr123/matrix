@@ -3,20 +3,24 @@ import zio._
 
 object Main extends ZIOAppDefault {
 
-  override def run =
+  override def run: ZIO[ZIOAppArgs, ExitCode, Unit] = ZIO.scoped {
     program
       .provideLayer(matrixRainLayer)
       .catchAll {
-        case ShowHelpException    => ZIO.succeed(ExitCode.success)
-        case PrintMaskWithoutPath => ZIO.succeed(ExitCode.success)
-        case PrintMaskPath        => ZIO.succeed(ExitCode.success)
-        case e: Throwable         => ZIO.fail(e.printStackTrace())
+        case ShowHelpException             => ZIO.succeed(ExitCode.success)
+        case PrintMaskWithoutPathException => ZIO.succeed(ExitCode.success)
+        case PrintMaskException            => ZIO.succeed(ExitCode.success)
+        case e: Throwable =>
+          ZIO.fail {
+            e.printStackTrace()
+            ExitCode.failure
+          }
       }
+  }
 
   def program: ZIO[MatrixRain, Throwable, Unit] = {
     for {
-      matrixRainInit <- ZIO.service[MatrixRain]
-      matrixRain <- MatrixRainConfig.updateConfigWithMask(matrixRainInit)
+      matrixRain <- ZIO.service[MatrixRain]
       _ <- ZIO.attempt(matrixRain.start())
       // 60FPS
       _ <- ZIO

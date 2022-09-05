@@ -8,7 +8,7 @@ sbt run
 or
 ```
 sbt assembly
-java -jar target/scala-3.1.3/matrix-rain-assembly-0.5.jar [-d {h,v}]
+java -jar target/scala-3.1.3/matrix-rain-assembly-0.6.jar [-d {h,v}]
                                                           [-c {green, red, blue, yellow, magenta, cyan, white}]
                                                           [-k {ascii, binary, braille, emoji, katakana}] 
         
@@ -28,6 +28,7 @@ Optional arguments:
   --offset-row <value>     Move the upper left corner of the mask down n rows.
   --offset-col <value>     Move the upper left corner of the mask right n columns.
   --font-ratio <value>     Ratio between character height over width in the terminal.
+  --image-scale <value>    Scale image by ratio, default is 1.0
   --print-mask             Print mask and exit.
 ```
 
@@ -36,3 +37,5 @@ Optional arguments:
 ![Vertical Matrix](./screenshots/v.gif)
 
 ![Horizontal Matrix](./screenshots/h.gif)
+
+![Masked Matrix](./screenshots/morpheus.gif)

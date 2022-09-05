@@ -18,11 +18,12 @@ case class MatrixRainConfig(direction: String = "v",
                             offsetRow: Int = 0,
                             offsetCol: Int = 0,
                             fontRatio: Int = 2,
+                            imageScale: Double = 1.0,
                             printMask: Boolean = false)
 
 case object ShowHelpException extends Exception
-case object PrintMaskWithoutPath extends Exception
-case object PrintMaskPath extends Exception
+case object PrintMaskWithoutPathException extends Exception
+case object PrintMaskException extends Exception
 
 final class MyOEffectSetup(consoleLogList: CopyOnWriteArrayList[String], consoleErrLogList: CopyOnWriteArrayList[String], terminated: AtomicReference[Boolean])
     extends OEffectSetup {
@@ -64,28 +65,27 @@ object MatrixRainConfig {
             Console.printLineError(consoleErrLogList.toArray.mkString("\n")) *>
             ZIO.fail(ShowHelpException)
       }
-      _ <- (Console.printLineError("Error: Missing option --mask-path\nTry --help for more information.") *> ZIO.fail(PrintMaskWithoutPath))
+      _ <- (Console.printLineError("Error: Missing option --mask-path\nTry --help for more information.") *> ZIO.fail(PrintMaskWithoutPathException))
         .when(conf.printMask && conf.maskPath.isEmpty)
-    } yield conf
+      confWithMask <- updateConfigWithMask(conf)
+    } yield confWithMask
 
-  def updateConfigWithMask(matrixRainInit: MatrixRain): ZIO[Any, Throwable, MatrixRain] =
+  def updateConfigWithMask(matrixRainConfig: MatrixRainConfig): ZIO[Any, Throwable, MatrixRainConfig] =
     for {
-      config <- if (matrixRainInit.matrixRainConfig.maskPath.isDefined)
-        MatrixRainConfig.fillMask(matrixRainInit.matrixRainConfig, matrixRainInit.terminal.getWidth, matrixRainInit.terminal.getHeight)
-      else ZIO.succeed(matrixRainInit.matrixRainConfig)
-      matrixRain = matrixRainInit.copy(matrixRainConfig = config)
-    } yield matrixRain
+      config <- if (matrixRainConfig.maskPath.isDefined) MatrixRainConfig.fillMask(matrixRainConfig)
+      else ZIO.succeed(matrixRainConfig)
+    } yield config
 
-  def fillMask(config: MatrixRainConfig, width: Int, height: Int): ZIO[Any, Throwable, MatrixRainConfig] = ZIO.scoped {
+  def fillMask(config: MatrixRainConfig): ZIO[Any, Throwable, MatrixRainConfig] = ZIO.scoped {
     for {
       bufferedImageInit <- ZIO.attempt(ImageIO.read(new File(config.maskPath.get)))
-      newHeight <- ZIO.attempt(height.max(bufferedImageInit.getHeight / 8))
-      newWidth <- ZIO.attempt(width.max(bufferedImageInit.getWidth / 4))
-      image = bufferedImageInit.getScaledInstance(newWidth * config.fontRatio, newHeight , Image.SCALE_DEFAULT)
+      newHeight = (config.imageScale * bufferedImageInit.getHeight / config.fontRatio).toInt
+      newWidth = (config.imageScale * bufferedImageInit.getWidth).toInt
+      image = bufferedImageInit.getScaledInstance(newWidth, newHeight, Image.SCALE_DEFAULT)
       bufferedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB)
       _ <- makeGraphics(bufferedImage).map(_.drawImage(image, 0, 0, null))
       mask <- ZIO.succeed(convert(bufferedImage))
-      _ <- (printMask(config, mask) *> ZIO.fail(PrintMaskPath)).when(config.printMask)
+      _ <- (printMask(config, mask) *> ZIO.fail(PrintMaskException)).when(config.printMask)
     } yield config.copy(mask = Some(mask))
   }
 
@@ -169,6 +169,9 @@ object MatrixRainConfig {
       opt[Int]("font-ratio")
         .action((x, c) => c.copy(fontRatio = x))
         .text("Ratio between character height over width in the terminal."),
+      opt[Double]("image-scale")
+        .action((x, c) => c.copy(imageScale = x))
+        .text("Scale image by ratio, default is 1.0"),
       opt[Unit]("print-mask")
         .action((_, c) => c.copy(printMask = true))
         .text("Print mask and exit."),
