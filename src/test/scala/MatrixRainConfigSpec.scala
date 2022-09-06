@@ -3,6 +3,8 @@ import zio.test.*
 import zio.test.Assertion.*
 import zio.test.TestAspect.{sequential, silent, timeout}
 
+import scala.io.Source
+
 object MatrixRainConfigSpec extends ZIOSpecDefault {
 
   def spec =
@@ -40,17 +42,11 @@ object MatrixRainConfigSpec extends ZIOSpecDefault {
                                            |""".stripMargin))
       },
       test("--mask-path morpheus --print-mask --image-scale") {
-        Main.main(Array("--mask-path", "img/morpheus.jpeg", "--print-mask", "--image-scale", "0.3"))
-        assertTrue(true)
+        for {
+          _ <- Main.run.provide(ZLayer.fromZIO(ZIO.succeed(ZIOAppArgs(Chunk("--mask-path", "img/morpheus.jpeg", "--print-mask", "--image-scale", "0.3")))))
+          out <- TestConsole.output.map(_.mkString)
+        } yield assertTrue(out.equals(Source.fromResource("morpheus.print-mask.image-scale-0.3.txt").mkString))
       },
-//      test("--mask-path morpheus --print-mask") {
-//        Main.main(Array("--mask-path", "img/morpheus.jpeg", "--print-mask"))
-//        assertTrue(true)
-//      },
-//      test("--mask-path fawkes --print-mask") {
-//        Main.main(Array("--mask-path", "img/fawkes.jpeg", "--print-mask"))
-//        assertTrue(true)
-//      },
     ) @@ timeout(3.seconds) @@ silent
 
 }
