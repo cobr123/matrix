@@ -1,3 +1,5 @@
+package com.example
+
 final class Droplet(var alive: Long,
                     var curCol: Int,
                     var curRow: Int,

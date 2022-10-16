@@ -7,11 +7,16 @@ sbt run
 ```
 or
 ```
+sbt nativeImage
+./target/native-image/matrix-rain
+```
+or
+```
 sbt assembly
-java -jar target/scala-3.1.3/matrix-rain-assembly-0.6.jar [-d {h,v}]
-                                                          [-c {green, red, blue, yellow, magenta, cyan, white}]
-                                                          [-k {ascii, binary, braille, emoji, katakana}] 
-        
+java -jar target/scala-2.13/matrix-rain-assembly-0.7.jar [-d {h,v}]
+                                                         [-c {green, red, blue, yellow, magenta, cyan, white}]
+                                                         [-k {ascii, binary, braille, emoji, katakana}] 
+
 The famous Matrix rain effect of falling green characters as a cli command
 
 Optional arguments:

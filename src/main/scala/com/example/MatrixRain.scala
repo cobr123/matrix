@@ -1,3 +1,5 @@
+package com.example
+
 import org.jline.terminal.Terminal
 
 import scala.collection.mutable.ArrayBuffer
@@ -110,7 +112,7 @@ final case class MatrixRain(terminal: Terminal, matrixRainConfig: MatrixRainConf
   }
 
   def renderFrame(): Unit = {
-    val ansiColor = AnsiColor.valueOf(s"fg${color.take(1).capitalize}${color.drop(1)}")
+    val ansiColor = AnsiColor.withName(s"fg${color.take(1).capitalize}${color.drop(1)}")
 
     for (droplets <- colDroplets) {
       for (droplet <- droplets) {

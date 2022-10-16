@@ -1,7 +1,8 @@
-import zio.*
-import zio.test.*
-import zio.test.Assertion.*
-import zio.test.TestAspect.{sequential, silent, timeout}
+package com.example
+
+import zio.test._
+import zio._
+import zio.test.TestAspect.{silent, timeout}
 
 import scala.io.Source
 

@@ -1,13 +1,14 @@
-import zio.*
-import scopt.{DefaultOEffectSetup, OEffectSetup, OParser}
+package com.example
 
+import scopt.{OEffectSetup, OParser}
+import zio._
+
+import java.awt.image.BufferedImage
+import java.awt.{Color, Graphics, Image}
 import java.io.File
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicReference
 import javax.imageio.ImageIO
-import java.awt.{Color, Graphics, Image}
-import java.awt.image.BufferedImage
-import java.util.concurrent.CopyOnWriteArrayList
-import scala.collection.mutable
 
 case class MatrixRainConfig(direction: String = "v",
                             color: String = "green",

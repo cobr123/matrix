@@ -1,3 +1,5 @@
+package com.example
+
 object Ansi {
   val ctlEsc = "\u001b["
 
