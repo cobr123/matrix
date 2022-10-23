@@ -29,7 +29,7 @@ lazy val root = (project in file("."))
   .enablePlugins(NativeImagePlugin)
   .settings(
     Compile / mainClass := Some("com.example.Main"),
-    nativeImageOptions ++= Seq("--no-fallback", "-H:IncludeResources=.*"),
+    nativeImageOptions ++= Seq("--no-fallback", "-H:IncludeResources=.*", "--install-exit-handlers"),
     nativeImageVersion := "22.1.0" // It should be at least version 21.0.0
   )
   .settings(inConfig(Test)(baseAssemblySettings): _*)

@@ -1,7 +1,6 @@
 package com.example
 
 import org.jline.terminal.{Terminal, TerminalBuilder}
-import sun.misc.{Signal, SignalHandler}
 import zio._
 
 object Main extends ZIOAppDefault {
@@ -25,12 +24,6 @@ object Main extends ZIOAppDefault {
     for {
       matrixRain <- ZIO.service[MatrixRain]
       _ <- ZIO.attempt(matrixRain.start())
-      _ <- ZIO.succeed {
-        // workaround for native version: register a signal handler for Ctrl-C that runs the shutdown hooks
-        Signal.handle(new Signal("INT"), new SignalHandler() {
-          override def handle(sig: Signal): Unit = scala.sys.exit(0)
-        })
-      }
       // 60FPS
       _ <- ZIO
         .attempt(matrixRain.renderFrame())
