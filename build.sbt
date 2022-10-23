@@ -72,8 +72,9 @@ lazy val nativeImageRunTest =
 
 nativeImageRunTest := {
   val testBinaryFile = nativeImagePackageTest.value
-  val testExitCode = Process(Seq(testBinaryFile.absolutePath), cwd = Some(testBinaryFile.getParentFile)).!
+  val projectRoot = testBinaryFile.getParentFile.getParentFile
+  val testExitCode = Process(Seq(testBinaryFile.absolutePath), cwd = Some(projectRoot)).!
   if (testExitCode != 0) {
-    throw new Exception(s"Native image tests failed:\n ${testBinaryFile.absolutePath} \ncwd = ${testBinaryFile.getParentFile}")
+    throw new Exception(s"Native image tests failed:\n ${testBinaryFile.absolutePath} \ncwd = ${projectRoot}")
   }
 }
