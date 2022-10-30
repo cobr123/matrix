@@ -29,7 +29,12 @@ lazy val root = (project in file("."))
   .enablePlugins(NativeImagePlugin)
   .settings(
     Compile / mainClass := Some("com.example.Main"),
-    nativeImageOptions ++= Seq("--no-fallback", "-H:IncludeResources=.*", "--install-exit-handlers"),
+    nativeImageOptions ++= Seq(
+      "--no-fallback",
+      "--install-exit-handlers",
+      "-H:IncludeResources=.*",
+      s"-H:ReflectionConfigurationFiles=${(nativeImageAgentOutputDir.value / "reflect-config.json").absolutePath}",
+    ),
     nativeImageVersion := "22.1.0" // It should be at least version 21.0.0
   )
   .settings(inConfig(Test)(baseAssemblySettings): _*)
@@ -45,7 +50,6 @@ lazy val nativeImagePackageTest =
 
 nativeImagePackageTest := {
   (Test / assembly).value
-
   val assembledFile: String = (Test / assembly / assemblyOutputPath).value.getAbsolutePath
 
   val testBinaryName = s"${name.value}-${version.value}-with-tests-native"
@@ -76,5 +80,36 @@ nativeImageRunTest := {
   val testExitCode = Process(Seq(testBinaryFile.absolutePath), cwd = Some(projectRoot)).!
   if (testExitCode != 0) {
     throw new Exception(s"Native image tests failed:\ncmd = ${testBinaryFile.absolutePath}\ncwd = ${projectRoot}")
+  }
+}
+
+lazy val nativeImageRunTestAgent =
+  taskKey[Unit]("Run tests, tracking all usages of dynamic features of an execution with `native-image-agent`.")
+
+nativeImageRunTestAgent := {
+  val _ = nativeImageCommand.value
+  val graalHome = nativeImageGraalHome.value.toFile
+
+  val agentConfig =
+    if (nativeImageAgentMerge.value)
+      "config-merge-dir"
+    else
+      "config-output-dir"
+  val agentOption =
+    s"-agentlib:native-image-agent=$agentConfig=${nativeImageAgentOutputDir.value}"
+
+  (Test / assembly).value
+  val assembledFile: String = (Test / assembly / assemblyOutputPath).value.getAbsolutePath
+
+  val command = mutable.ListBuffer.empty[String]
+  command += (graalHome / "bin" / "java").absolutePath
+  command += agentOption
+  command += "-jar"
+  command += assembledFile
+
+  val projectRoot = baseDirectory.value
+  val exitCode = Process(command, cwd = Some(projectRoot)).!
+  if (exitCode != 0) {
+    throw new Exception(s"Native image build failed:\n ${command}")
   }
 }

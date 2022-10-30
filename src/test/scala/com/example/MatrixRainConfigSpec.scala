@@ -48,6 +48,19 @@ object MatrixRainConfigSpec extends ZIOSpecDefault {
           out <- TestConsole.output.map(_.mkString)
         } yield assertTrue(out.equals(Source.fromResource("morpheus.print-mask.image-scale-0.3.txt").mkString))
       },
+      test("reflection"){
+        ZIO.succeed{
+          val cl = this.getClass.getClassLoader
+          val c = cl.loadClass("com.example.Hello3")
+          val h3 = c.getConstructor().newInstance()
+          val text = h3.toString
+          assertTrue(text == "Hello 3")
+        }
+      }
     ) @@ timeout(3.seconds) @@ silent
 
+}
+
+class Hello3 {
+  override def toString: String = "Hello 3"
 }
