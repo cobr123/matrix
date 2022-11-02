@@ -9,7 +9,7 @@ version := "0.7"
 
 scalaVersion := "2.13.8"
 
-val zioVersion = "2.0.2"
+val zioVersion = "2.0.3"
 
 libraryDependencies += "org.jline" % "jline" % "3.21.0"
 
@@ -33,9 +33,11 @@ lazy val root = (project in file("."))
       "--no-fallback",
       "--install-exit-handlers",
       "-H:IncludeResources=.*",
-      s"-H:ReflectionConfigurationFiles=${(nativeImageAgentOutputDir.value / "reflect-config.json").absolutePath}",
-    ),
-    nativeImageVersion := "22.1.0" // It should be at least version 21.0.0
+    ) ++ Option(nativeImageAgentOutputDir.value)
+      .filter(_.exists())
+      .map(file => s"-H:ReflectionConfigurationFiles=${(file / "reflect-config.json").absolutePath}")
+      .toSeq,
+    nativeImageVersion := "22.3.0" // It should be at least version 21.0.0
   )
   .settings(inConfig(Test)(baseAssemblySettings): _*)
 
