@@ -65,6 +65,7 @@ nativeImagePackageTest := {
   val cwd = (NativeImage / target).value
   cwd.mkdirs()
 
+  streams.value.log.info(command.mkString(" "))
   val exitCode = Process(command, cwd = Some(cwd)).!
   if (exitCode != 0) {
     throw new Exception(s"Native image build failed:\n ${command}")
@@ -110,6 +111,7 @@ nativeImageRunTestAgent := {
   command += assembledFile
 
   val projectRoot = baseDirectory.value
+  streams.value.log.info(command.mkString(" "))
   val exitCode = Process(command, cwd = Some(projectRoot)).!
   if (exitCode != 0) {
     throw new Exception(s"Native image build failed:\n ${command}")
